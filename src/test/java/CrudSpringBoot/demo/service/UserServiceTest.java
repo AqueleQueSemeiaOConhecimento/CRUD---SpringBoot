@@ -26,8 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import CrudSpringBoot.demo.controller.CreateUserDto;
-import CrudSpringBoot.demo.controller.UpdateUserDto;
+import CrudSpringBoot.demo.controller.dto.CreateUserDto;
+import CrudSpringBoot.demo.controller.dto.UpdateUserDto;
 import CrudSpringBoot.demo.entity.User;
 import CrudSpringBoot.demo.repository.UserRepository;
 

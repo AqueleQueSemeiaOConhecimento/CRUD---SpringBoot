@@ -3,6 +3,7 @@ package CrudSpringBoot.demo.entity;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +29,7 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(cascade = CascadeType.ALL ,mappedBy = "account")
     @PrimaryKeyJoinColumn
     private BillingAddress billingAddress;
 
@@ -36,15 +37,22 @@ public class Account {
     private String description;
 
     @OneToMany(mappedBy = "account")
-    private List<AccountStock> AccountStock;
+    private List<AccountStock> accountStock;
 
     public Account() {
     }
 
-    public Account(UUID accountId, String description) {
+    
+
+    public Account(UUID accountId, User user, BillingAddress billingAddress, String description, List<AccountStock> accountStocks) {
         this.accountId = accountId;
+        this.user = user;
+        this.billingAddress = billingAddress;
         this.description = description;
+        this.accountStock = accountStocks;
     }
+
+
 
     public UUID getAccountId() {
         return accountId;
@@ -68,6 +76,30 @@ public class Account {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+
+    public BillingAddress getBillingAddress() {
+        return billingAddress;
+    }
+
+
+
+    public void setBillingAddress(BillingAddress billingAddress) {
+        this.billingAddress = billingAddress;
+    }
+
+
+
+    public List<AccountStock> getAccountStock() {
+        return accountStock;
+    }
+
+
+
+    public void setAccountStock(List<AccountStock> accountStock) {
+        this.accountStock = accountStock;
     }
 
     

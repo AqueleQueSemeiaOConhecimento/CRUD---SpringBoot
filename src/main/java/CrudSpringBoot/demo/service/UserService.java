@@ -1,15 +1,24 @@
 package CrudSpringBoot.demo.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import CrudSpringBoot.demo.controller.CreateUserDto;
-import CrudSpringBoot.demo.controller.UpdateUserDto;
+import CrudSpringBoot.demo.controller.dto.AccountResponseDto;
+import CrudSpringBoot.demo.controller.dto.CreateAccountDto;
+import CrudSpringBoot.demo.controller.dto.CreateUserDto;
+import CrudSpringBoot.demo.controller.dto.UpdateUserDto;
+import CrudSpringBoot.demo.entity.Account;
+import CrudSpringBoot.demo.entity.BillingAddress;
 import CrudSpringBoot.demo.entity.User;
+import CrudSpringBoot.demo.repository.AccountRepository;
+import CrudSpringBoot.demo.repository.BillingAddressRepository;
 import CrudSpringBoot.demo.repository.UserRepository;
 
 @Service
@@ -17,8 +26,14 @@ public class UserService {
 
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private AccountRepository accountRepository;
+
+    private BillingAddressRepository billingAddressRepository;
+
+    public UserService(UserRepository userRepository, AccountRepository accountRepository, BillingAddressRepository billingAddressRepository) {
         this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
+        this.billingAddressRepository = billingAddressRepository;
     }
 
     public UUID createUser(CreateUserDto createUserDto) {
@@ -74,6 +89,41 @@ public class UserService {
         }
     }
 
+    public void createAccount(String userId, CreateAccountDto createAccountDto) {
 
+        var user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // DTO -> Entity
+        var account = new Account(
+            UUID.randomUUID(),
+            user,
+            null,
+            createAccountDto.description(),
+            new ArrayList<>()
+        );
+
+        var accountCreated = accountRepository.save(account);
+
+        var billingAddress = new BillingAddress(
+            accountCreated.getAccountId(),
+            account,
+            createAccountDto.street(),
+            createAccountDto.number()
+        );
+
+        billingAddressRepository.save(billingAddress);
+    }
+
+    public List<AccountResponseDto> listAccounts(String userId) {
+
+        var user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+ 
+        return user.getAccounts()
+        .stream()
+        .map(ac -> 
+        new AccountResponseDto(ac.getAccountId().toString(), ac.getDescription()))
+        .toList();
+
+    }
 
 }
